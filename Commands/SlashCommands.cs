@@ -152,15 +152,27 @@ public class SlashCommands : ApplicationCommandModule
 
                     await newChan.SendMessageAsync(what);
                     await Task.Delay(800);
-                    var attachStream = await httpClient.GetStreamAsync(att.Url);
 
-                    // upload attachment to discord
-                    var attachDiscord = new DiscordMessageBuilder().AddFiles(
-                        new Dictionary<string, Stream> { { att.FileName, attachStream } }
-                    );
+                    try
+                    {
+                        var attachStream = await httpClient.GetStreamAsync(att.Url);
 
-                    await newChan.SendMessageAsync(attachDiscord);
-                    await Task.Delay(800);
+                        // upload attachment to discord
+                        var attachDiscord = new DiscordMessageBuilder().AddFiles(
+                            new Dictionary<string, Stream> { { att.FileName, attachStream } }
+                        );
+
+                        await newChan.SendMessageAsync(attachDiscord);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to upload {att.FileName}: {ex.Message}");
+                        // Optionally log the error to a logging system instead of console
+                    }
+                    finally
+                    {
+                        await Task.Delay(800);
+                    }
                 }
             }
 
